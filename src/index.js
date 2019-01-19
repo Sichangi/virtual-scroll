@@ -1,219 +1,223 @@
-'use strict';
+'use strict'
 
-var objectAssign = require('object-assign');
-var Emitter = require('tiny-emitter');
-var Lethargy = require('lethargy').Lethargy;
-var support = require('./support');
-var clone = require('./clone');
-var bindAll = require('bindall-standalone');
-var EVT_ID = 'virtualscroll';
+const objectAssign = require('object-assign')
+const Emitter = require('tiny-emitter')
+const Lethargy = require('lethargy').Lethargy
+const support = require('./support')
+const bindAll = require('bindall-standalone')
+const EVT_ID = 'virtualscroll'
 
-module.exports = VirtualScroll;
+module.exports = VirtualScroll
+if (window) window.VirtualScroll = VirtualScroll
 
-var keyCodes = {
-    LEFT: 37,
-    UP: 38,
-    RIGHT: 39,
-    DOWN: 40,
-    SPACE: 32
-};
-
-function VirtualScroll(options) {
-    bindAll(this, '_onWheel', '_onMouseWheel', '_onTouchStart', '_onTouchMove', '_onKeyDown');
-
-    this.el = window;
-    if (options && options.el) {
-        this.el = options.el;
-        delete options.el;
-    }
-    this.options = objectAssign({
-        mouseMultiplier: 1,
-        touchMultiplier: 2,
-        firefoxMultiplier: 15,
-        keyStep: 120,
-        preventTouch: false,
-        unpreventTouchClass: 'vs-touchmove-allowed',
-        limitInertia: false
-    }, options);
-
-    if (this.options.limitInertia) this._lethargy = new Lethargy();
-
-    this._emitter = new Emitter();
-    this._event = {
-        y: 0,
-        x: 0,
-        deltaX: 0,
-        deltaY: 0
-    };
-    this.touchStartX = null;
-    this.touchStartY = null;
-    this.bodyTouchAction = null;
-
-    if (this.options.passive !== undefined) {
-        this.listenerOptions = {passive: this.options.passive};
-    }
+const keyCodes = {
+  LEFT: 37,
+  UP: 38,
+  RIGHT: 39,
+  DOWN: 40,
+  SPACE: 32
 }
 
-VirtualScroll.prototype._notify = function(e) {
-    var evt = this._event;
-    evt.x += evt.deltaX;
-    evt.y += evt.deltaY;
+function VirtualScroll(options) {
+  bindAll(this, '_onWheel', '_onMouseWheel', '_onTouchStart', '_onTouchMove', '_onKeyDown')
 
-   this._emitter.emit(EVT_ID, {
-        x: evt.x,
-        y: evt.y,
-        deltaX: evt.deltaX,
-        deltaY: evt.deltaY,
-        originalEvent: e
-   });
-};
+  this.el = window
+  if (options && options.el) {
+    this.el = options.el
+    delete options.el
+  }
+  this.options = objectAssign({
+    mouseMultiplier: 1,
+    touchMultiplier: 2,
+    firefoxMultiplier: 15,
+    keyStep: 120,
+    preventTouch: false,
+    unpreventTouchClass: 'vs-touchmove-allowed',
+    limitInertia: false,
+    disableUserInput: false
+  }, options)
 
-VirtualScroll.prototype._onWheel = function(e) {
-    var options = this.options;
-    if (this._lethargy && this._lethargy.check(e) === false) return;
-    var evt = this._event;
+  if (this.options.limitInertia) this._lethargy = new Lethargy()
 
-    // In Chrome and in Firefox (at least the new one)
-    evt.deltaX = e.wheelDeltaX || e.deltaX * -1;
-    evt.deltaY = e.wheelDeltaY || e.deltaY * -1;
+  this._emitter = new Emitter()
+  this._event = {
+    y: 0,
+    x: 0,
+    deltaX: 0,
+    deltaY: 0
+  }
+  this.touchStartX = null
+  this.touchStartY = null
+  this.bodyTouchAction = null
 
-    // for our purpose deltamode = 1 means user is on a wheel mouse, not touch pad
-    // real meaning: https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent#Delta_modes
-    if(support.isFirefox && e.deltaMode == 1) {
-        evt.deltaX *= options.firefoxMultiplier;
-        evt.deltaY *= options.firefoxMultiplier;
-    }
+  if (this.options.passive !== undefined) {
+    this.listenerOptions = {passive: this.options.passive}
+  }
+}
 
-    evt.deltaX *= options.mouseMultiplier;
-    evt.deltaY *= options.mouseMultiplier;
+VirtualScroll.prototype._notify = function (e) {
+  const evt = this._event
+  evt.x += evt.deltaX
+  evt.y += evt.deltaY
 
-    this._notify(e);
-};
+  this._emitter.emit(EVT_ID, {
+    x: evt.x,
+    y: evt.y,
+    deltaX: evt.deltaX,
+    deltaY: evt.deltaY,
+    originalEvent: e
+  })
+}
 
-VirtualScroll.prototype._onMouseWheel = function(e) {
-    if (this.options.limitInertia && this._lethargy.check(e) === false) return;
+VirtualScroll.prototype._onWheel = function (e) {
+  const options = this.options
+  if (this._lethargy && this._lethargy.check(e) === false) return
+  const evt = this._event
 
-    var evt = this._event;
+  // In Chrome and in Firefox (at least the new one)
+  evt.deltaX = e.wheelDeltaX || e.deltaX * -1
+  evt.deltaY = e.wheelDeltaY || e.deltaY * -1
 
-    // In Safari, IE and in Chrome if 'wheel' isn't defined
-    evt.deltaX = (e.wheelDeltaX) ? e.wheelDeltaX : 0;
-    evt.deltaY = (e.wheelDeltaY) ? e.wheelDeltaY : e.wheelDelta;
+  // for our purpose deltamode = 1 means user is on a wheel mouse, not touch pad
+  // real meaning: https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent#Delta_modes
+  if (support.isFirefox && e.deltaMode === 1) {
+    evt.deltaX *= options.firefoxMultiplier
+    evt.deltaY *= options.firefoxMultiplier
+  }
 
-    this._notify(e);
-};
+  evt.deltaX *= options.mouseMultiplier
+  evt.deltaY *= options.mouseMultiplier
 
-VirtualScroll.prototype._onTouchStart = function(e) {
-    var t = (e.targetTouches) ? e.targetTouches[0] : e;
-    this.touchStartX = t.pageX;
-    this.touchStartY = t.pageY;
-};
+  this._notify(e)
+}
 
-VirtualScroll.prototype._onTouchMove = function(e) {
-    var options = this.options;
-    if(options.preventTouch
-        && !e.target.classList.contains(options.unpreventTouchClass)) {
-        e.preventDefault();
-    }
+VirtualScroll.prototype._onMouseWheel = function (e) {
+  if (this.options.limitInertia && this._lethargy.check(e) === false) return
 
-    var evt = this._event;
+  const evt = this._event
 
-    var t = (e.targetTouches) ? e.targetTouches[0] : e;
+  // In Safari, IE and in Chrome if 'wheel' isn't defined
+  evt.deltaX = (e.wheelDeltaX) ? e.wheelDeltaX : 0
+  evt.deltaY = (e.wheelDeltaY) ? e.wheelDeltaY : e.wheelDelta
 
-    evt.deltaX = (t.pageX - this.touchStartX) * options.touchMultiplier;
-    evt.deltaY = (t.pageY - this.touchStartY) * options.touchMultiplier;
+  this._notify(e)
+}
 
-    this.touchStartX = t.pageX;
-    this.touchStartY = t.pageY;
+VirtualScroll.prototype._onTouchStart = function (e) {
+  const t = (e.targetTouches) ? e.targetTouches[0] : e
+  this.touchStartX = t.pageX
+  this.touchStartY = t.pageY
+}
 
-    this._notify(e);
-};
+VirtualScroll.prototype._onTouchMove = function (e) {
+  const options = this.options
+  if (options.preventTouch
+      && !e.target.classList.contains(options.unpreventTouchClass)) {
+    e.preventDefault()
+  }
 
-VirtualScroll.prototype._onKeyDown = function(e) {
-    var evt = this._event;
-    evt.deltaX = evt.deltaY = 0;
-    var windowHeight = window.innerHeight - 40
+  const evt = this._event
 
-    switch(e.keyCode) {
-        case keyCodes.LEFT:
-        case keyCodes.UP:
-            evt.deltaY = this.options.keyStep;
-            break;
+  const t = (e.targetTouches) ? e.targetTouches[0] : e
 
-        case keyCodes.RIGHT:
-        case keyCodes.DOWN:
-            evt.deltaY = - this.options.keyStep;
-            break;
-        case keyCodes.SPACE && e.shiftKey:
-            evt.deltaY = windowHeight;
-            break;
-        case keyCodes.SPACE:
-            evt.deltaY = - windowHeight;
-            break;
-        default:
-            return;
-    }
+  evt.deltaX = (t.pageX - this.touchStartX) * options.touchMultiplier
+  evt.deltaY = (t.pageY - this.touchStartY) * options.touchMultiplier
 
-    this._notify(e);
-};
+  this.touchStartX = t.pageX
+  this.touchStartY = t.pageY
 
-VirtualScroll.prototype._bind = function() {
-    if(support.hasWheelEvent) this.el.addEventListener('wheel', this._onWheel, this.listenerOptions);
-    if(support.hasMouseWheelEvent) this.el.addEventListener('mousewheel', this._onMouseWheel, this.listenerOptions);
+  this._notify(e)
+}
 
-    if(support.hasTouch) {
-        this.el.addEventListener('touchstart', this._onTouchStart, this.listenerOptions);
-        this.el.addEventListener('touchmove', this._onTouchMove, this.listenerOptions);
-    }
+VirtualScroll.prototype._onKeyDown = function (e) {
+  const evt = this._event
+  evt.deltaX = evt.deltaY = 0
+  const windowHeight = window.innerHeight - 40
 
-    if(support.hasPointer && support.hasTouchWin) {
-        this.bodyTouchAction = document.body.style.msTouchAction;
-        document.body.style.msTouchAction = 'none';
-        this.el.addEventListener('MSPointerDown', this._onTouchStart, true);
-        this.el.addEventListener('MSPointerMove', this._onTouchMove, true);
-    }
+  switch (e.keyCode) {
+    case keyCodes.LEFT:
+    case keyCodes.UP:
+      evt.deltaY = this.options.keyStep
+      break
 
-    if(support.hasKeyDown) document.addEventListener('keydown', this._onKeyDown);
-};
+    case keyCodes.RIGHT:
+    case keyCodes.DOWN:
+      evt.deltaY = -this.options.keyStep
+      break
+    case keyCodes.SPACE && e.shiftKey:
+      evt.deltaY = windowHeight
+      break
+    case keyCodes.SPACE:
+      evt.deltaY = -windowHeight
+      break
+    default:
+      return
+  }
 
-VirtualScroll.prototype._unbind = function() {
-    if(support.hasWheelEvent) this.el.removeEventListener('wheel', this._onWheel);
-    if(support.hasMouseWheelEvent) this.el.removeEventListener('mousewheel', this._onMouseWheel);
+  this._notify(e)
+}
 
-    if(support.hasTouch) {
-        this.el.removeEventListener('touchstart', this._onTouchStart);
-        this.el.removeEventListener('touchmove', this._onTouchMove);
-    }
+VirtualScroll.prototype._bind = function () {
+  if (this.options.disableUserInput) return
 
-    if(support.hasPointer && support.hasTouchWin) {
-        document.body.style.msTouchAction = this.bodyTouchAction;
-        this.el.removeEventListener('MSPointerDown', this._onTouchStart, true);
-        this.el.removeEventListener('MSPointerMove', this._onTouchMove, true);
-    }
+  if (support.hasWheelEvent) this.el.addEventListener('wheel', this._onWheel, this.listenerOptions)
+  if (support.hasMouseWheelEvent) this.el.addEventListener('mousewheel', this._onMouseWheel, this.listenerOptions)
 
-    if(support.hasKeyDown) document.removeEventListener('keydown', this._onKeyDown);
-};
+  if (support.hasTouch) {
+    this.el.addEventListener('touchstart', this._onTouchStart, this.listenerOptions)
+    this.el.addEventListener('touchmove', this._onTouchMove, this.listenerOptions)
+  }
 
-VirtualScroll.prototype.on = function(cb, ctx) {
-  this._emitter.on(EVT_ID, cb, ctx);
+  if (support.hasPointer && support.hasTouchWin) {
+    this.bodyTouchAction = document.body.style.msTouchAction
+    document.body.style.msTouchAction = 'none'
+    this.el.addEventListener('MSPointerDown', this._onTouchStart, true)
+    this.el.addEventListener('MSPointerMove', this._onTouchMove, true)
+  }
 
-  var events = this._emitter.e;
-  if (events && events[EVT_ID] && events[EVT_ID].length === 1) this._bind();
-};
+  if (support.hasKeyDown) document.addEventListener('keydown', this._onKeyDown)
+}
 
-VirtualScroll.prototype.off = function(cb, ctx) {
-  this._emitter.off(EVT_ID, cb, ctx);
+VirtualScroll.prototype._unbind = function () {
+  if (this.options.disableUserInput) return
+  if (support.hasWheelEvent) this.el.removeEventListener('wheel', this._onWheel)
+  if (support.hasMouseWheelEvent) this.el.removeEventListener('mousewheel', this._onMouseWheel)
 
-  var events = this._emitter.e;
-  if (!events[EVT_ID] || events[EVT_ID].length <= 0) this._unbind();
-};
+  if (support.hasTouch) {
+    this.el.removeEventListener('touchstart', this._onTouchStart)
+    this.el.removeEventListener('touchmove', this._onTouchMove)
+  }
 
-VirtualScroll.prototype.reset = function() {
-    var evt = this._event;
-    evt.x = 0;
-    evt.y = 0;
-};
+  if (support.hasPointer && support.hasTouchWin) {
+    document.body.style.msTouchAction = this.bodyTouchAction
+    this.el.removeEventListener('MSPointerDown', this._onTouchStart, true)
+    this.el.removeEventListener('MSPointerMove', this._onTouchMove, true)
+  }
 
-VirtualScroll.prototype.destroy = function() {
-    this._emitter.off();
-    this._unbind();
-};
+  if (support.hasKeyDown) document.removeEventListener('keydown', this._onKeyDown)
+}
+
+VirtualScroll.prototype.on = function (cb, ctx) {
+  this._emitter.on(EVT_ID, cb, ctx)
+
+  const events = this._emitter.e
+  if (events && events[EVT_ID] && events[EVT_ID].length === 1) this._bind()
+}
+
+VirtualScroll.prototype.off = function (cb, ctx) {
+  this._emitter.off(EVT_ID, cb, ctx)
+
+  const events = this._emitter.e
+  if (!events[EVT_ID] || events[EVT_ID].length <= 0) this._unbind()
+}
+
+VirtualScroll.prototype.reset = function () {
+  const evt = this._event
+  evt.x = 0
+  evt.y = 0
+}
+
+VirtualScroll.prototype.destroy = function () {
+  this._emitter.off()
+  this._unbind()
+}

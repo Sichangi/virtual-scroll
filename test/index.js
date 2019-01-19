@@ -21,8 +21,8 @@ test('Scroll with target test', function(assert) {
     });
 
     v.on(function(event) {
-        if (event.originalEvent.type == 'wheel') {
-            if (event.originalEvent.currentTarget == el) {
+        if (event.originalEvent.type === 'wheel') {
+            if (event.originalEvent.currentTarget === el) {
                 assert.pass('Wheel events should only fire when hovering the target element.');
             } else {
                 assert.fail('A wheel event fired on a different element.');
@@ -39,7 +39,7 @@ test('Arrow scroll test', function(assert) {
     var v = new VirtualScroll();
 
     v.on(function(event) {
-        if (event.originalEvent.type == 'keydown') {
+        if (event.originalEvent.type === 'keydown') {
             assert.pass('Event triggered by keydown.');
             v.destroy();
             assert.end();
@@ -53,7 +53,7 @@ test('Space keypress', function(assert) {
     var v = new VirtualScroll();
 
     v.on(function(event) {
-        if (!event.originalEvent.shiftKey && event.originalEvent.keyCode == KEY_CODE.SPACE) {
+        if (!event.originalEvent.shiftKey && event.originalEvent.keyCode === KEY_CODE.SPACE) {
             assert.pass('Event triggered by space key.');
             v.destroy();
             assert.end();
@@ -67,7 +67,7 @@ test('Shift and space keypress', function(assert) {
     var v = new VirtualScroll();
 
     v.on(function(event) {
-        if (event.originalEvent.shiftKey && event.originalEvent.keyCode == KEY_CODE.SPACE) {
+        if (event.originalEvent.shiftKey && event.originalEvent.keyCode === KEY_CODE.SPACE) {
             assert.pass('Event triggered by space and shift key.');
             v.destroy();
             assert.end();
