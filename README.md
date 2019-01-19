@@ -11,7 +11,7 @@ Custom scroll event with inertia/momentum, touch and keyboard compatible.
 
 ### Installation
 ```
-npm i @mecolela/virtual-scroll -S
+yarn @mecolela/virtual-scroll -S
 ```
 
 ### Usage & API
