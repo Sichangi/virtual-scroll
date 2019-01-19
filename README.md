@@ -18,7 +18,7 @@ npm i @mecolela/virtual-scroll -S
 
 Return a new instance of VirtualScroll. See the options below.
 ```js
-new VirtualScroll(options)
+const instance = new VirtualScroll(options)
 ```
 
 Listen to the scroll event using the specified function (fn) and optional context.
