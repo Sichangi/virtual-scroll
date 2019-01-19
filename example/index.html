@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Virtual scroll example</title>
+  <style>
+    body {
+      overflow: hidden;
+      margin: 0;
+    }
+
+    section {
+      height: 90vh;
+      background-color: black;
+    }
+
+    section.s-2 {
+      background-color: aqua;
+    }
+
+    section.s-3 {
+      background-color: burlywood;
+    }
+
+    section.s-4 {
+      background-color: darkcyan;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <section></section>
+  <section class="s-2"></section>
+  <section class="s-3"></section>
+  <section class="s-4"></section>
+</div>
+
+<script src="../dist/index.js"></script>
+<script>
+  const instance = new VirtualScroll({mouseMultiplier: .5})
+  let targetY = 0
+  let currentY = 0
+  let section = document.querySelector('#app')
+  let sectionHeight = section.getBoundingClientRect().height
+  const ease = 0.1
+
+  instance.on((e) => {
+    targetY += e.deltaY
+    targetY = Math.max(-(sectionHeight - window.innerHeight), targetY)
+    targetY = Math.min(0, targetY)
+  })
+
+  function run() {
+    requestAnimationFrame(run)
+    currentY += (targetY - currentY) * ease
+    const t = `translateY(${currentY}px) translateZ(0)`
+    const s = section.style
+    s['transform'] = t
+    s['webkitTransform'] = t
+    s['mozTransform'] = t
+    s['msTransform'] = t
+  }
+
+  run()
+</script>
+</body>
+</html>
