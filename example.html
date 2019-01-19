@@ -23,6 +23,7 @@
     }
 
     section.s-4 {
+      height: 100vh;
       background-color: darkcyan;
     }
   </style>
@@ -35,7 +36,7 @@
   <section class="s-4"></section>
 </div>
 
-<script src="../dist/index.js"></script>
+<script src="./dist/index.js"></script>
 <script>
   const instance = new VirtualScroll({mouseMultiplier: .5})
   let targetY = 0
@@ -53,6 +54,7 @@
   function run() {
     requestAnimationFrame(run)
     currentY += (targetY - currentY) * ease
+    currentY = parseFloat(currentY.toFixed(4))
     const t = `translateY(${currentY}px) translateZ(0)`
     const s = section.style
     s['transform'] = t
