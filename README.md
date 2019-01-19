@@ -41,7 +41,7 @@ Each instance will listen only once to any DOM listener.These listener are enabl
 
 ### Options
 | name   |   default     |  description |
-|:----------|:-------------:|:------|
+|:----------|:-------------|:------|
 | el |  window | the target element for mobile touch events |
 | mouseMultiplier |  1  |  General multiplier for all mousewheel (including Firefox) |
 | touchMultiplier   | 2 |  Mutiply the touch action by this modifier to make scroll faster than finger movement. |
