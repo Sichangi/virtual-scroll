@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "browser": "dist/index.js",
   "scripts": {
+    "build": "webpack",
     "test": "browserify test/index.js | tap-closer | smokestack | faucet",
     "test-debug": "budo test/index.js --live"
   },
