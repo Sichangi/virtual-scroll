@@ -38,16 +38,16 @@
 
 <script src="./dist/index.js"></script>
 <script>
-  const instance = new VirtualScroll({mouseMultiplier: .5})
+  const instance = new VirtualScroll({mouseMultiplier: .8})
   let targetY = 0
   let currentY = 0
-  let section = document.querySelector('#app')
-  let sectionHeight = section.getBoundingClientRect().height
+  let app = document.querySelector('#app')
+  let appHeight = app.getBoundingClientRect().height
   const ease = 0.1
 
   instance.on((e) => {
     targetY += e.deltaY
-    targetY = Math.max(-(sectionHeight - window.innerHeight), targetY)
+    targetY = Math.max(-(appHeight - window.innerHeight), targetY)
     targetY = Math.min(0, targetY)
   })
 
@@ -56,12 +56,19 @@
     currentY += (targetY - currentY) * ease
     currentY = parseFloat(currentY.toFixed(4))
     const t = `translateY(${currentY}px) translateZ(0)`
-    const s = section.style
+    const s = app.style
     s['transform'] = t
     s['webkitTransform'] = t
     s['mozTransform'] = t
     s['msTransform'] = t
   }
+
+  function onResize() {
+    appHeight = app.getBoundingClientRect().height
+    targetY = 0
+  }
+
+  window.addEventListener('resize', onResize)
 
   run()
 </script>
