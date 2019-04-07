@@ -1,7 +1,6 @@
 'use strict'
 
 const Emitter = require('tiny-emitter')
-const Lethargy = require('lethargy').Lethargy
 const support = require('./support')
 const bindAll = require('bindall-standalone')
 const EVT_ID = 'virtualscroll'
@@ -32,11 +31,9 @@ function VirtualScroll(options) {
     keyStep: 120,
     preventTouch: false,
     unpreventTouchClass: 'vs-touchmove-allowed',
-    limitInertia: false,
     disableUserInput: false
   }, options)
 
-  if (this.options.limitInertia) this._lethargy = new Lethargy()
 
   this._emitter = new Emitter()
   this._event = {
@@ -91,7 +88,6 @@ VirtualScroll.prototype._onWheel = function (e) {
 }
 
 VirtualScroll.prototype._onMouseWheel = function (e) {
-  if (this.options.limitInertia && this._lethargy.check(e) === false) return
 
   const evt = this._event
 
