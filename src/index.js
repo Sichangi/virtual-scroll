@@ -67,7 +67,6 @@ VirtualScroll.prototype._notify = function (e) {
 
 VirtualScroll.prototype._onWheel = function (e) {
   const options = this.options
-  if (this._lethargy && this._lethargy.check(e) === false) return
   const evt = this._event
 
   // In Chrome and in Firefox (at least the new one)
