@@ -7,7 +7,7 @@ Custom scroll event with inertia/momentum, touch and keyboard compatible.
 ### Goals of the fork
 - Support browser and commonjs environments
 - Add SSR environment support
-- Provide an example usage
+- Provide an [example](./example.html) usage
 
 ### Installation
 ```

@@ -1,0 +1,49 @@
+image: node:10.17.0
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - build
+  - test
+  - deploy
+
+Build:
+  stage: build
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NO-B/
+  artifacts:
+    paths:
+      - dist/
+  before_script:
+    - yarn install
+  script:
+    - yarn build
+
+#Test:
+#  stage: test
+#  except:
+#    variables:
+#      - $CI_COMMIT_MESSAGE =~ /NO-T/
+#  only:
+#    - master
+#  script:
+#    - yarn test
+#  dependencies:
+#    - Build
+
+Deploy:
+  stage: deploy
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NO-D/
+  cache: {}
+  only:
+    - master
+  script:
+    - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+    - npm publish
+  dependencies:
+    - Build
