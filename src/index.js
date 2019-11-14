@@ -6,6 +6,7 @@ const bindAll = require('bindall-standalone')
 const EVT_ID = 'virtualscroll'
 
 module.exports = VirtualScroll
+VirtualScroll.VirtualScroll = VirtualScroll
 if (window) window.VirtualScroll = VirtualScroll
 
 const keyCodes = {
