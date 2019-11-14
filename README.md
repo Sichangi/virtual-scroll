@@ -1,5 +1,6 @@
 virtual-scroll
 =====
+[![pipeline status](https://gitlab.com/mecolela/virtual-scroll/badges/master/pipeline.svg)](https://gitlab.com/mecolela/virtual-scroll/commits/master)
 
 Custom scroll event with inertia/momentum, touch and keyboard compatible.
 > See this [article](http://www.everyday3d.com/blog/index.php/2014/08/18/smooth-scrolling-with-virtualscroll/) for the original authors description.
