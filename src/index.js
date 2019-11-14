@@ -107,7 +107,7 @@ VirtualScroll.prototype._onTouchStart = function (e) {
 VirtualScroll.prototype._onTouchMove = function (e) {
   const options = this.options
   if (options.preventTouch
-      && !e.target.classList.contains(options.unpreventTouchClass)) {
+    && !e.target.classList.contains(options.unpreventTouchClass)) {
     e.preventDefault()
   }
 
