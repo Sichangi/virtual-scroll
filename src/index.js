@@ -7,7 +7,7 @@ const EVT_ID = 'virtualscroll'
 
 module.exports = VirtualScroll
 VirtualScroll.VirtualScroll = VirtualScroll
-if (window) window.VirtualScroll = VirtualScroll
+if (typeof window !== 'undefined') window.VirtualScroll = VirtualScroll
 
 const keyCodes = {
   LEFT: 37,

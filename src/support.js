@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (() => (typeof window !== undefined) ? {
+module.exports = (() => (typeof window !== 'undefined') ? {
   hasWheelEvent: 'onwheel' in document,
   hasMouseWheelEvent: 'onmousewheel' in document,
   hasTouch: ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch,
